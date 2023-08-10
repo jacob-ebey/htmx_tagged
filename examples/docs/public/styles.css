@@ -227,14 +227,13 @@ form button:where([type="submit"]):hover:after {
 code {
   background-color: #272822;
   color: var(--color-links);
+  display: inline-block;
+  padding: 4px;
 }
 
-/* code[class*="language-"],
-pre[class*="language-"] {
-  font-size: 0.9em !important;
-} */
 [data-code] {
   overflow-x: auto;
+  font-size: 0.9em !important;
 }
 
 .sr-only {

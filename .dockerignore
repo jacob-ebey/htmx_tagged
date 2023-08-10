@@ -1,0 +1,13 @@
+# flyctl launch added from .gitignore
+**/.DS_Store
+**/.env
+
+
+# flyctl launch added from examples/auth/.gitignore
+examples/auth/**/.DS_Store
+examples/auth/**/.env
+
+# flyctl launch added from examples/docs/.gitignore
+examples/docs/**/.DS_Store
+examples/docs/**/.env
+fly.toml
