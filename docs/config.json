@@ -1,0 +1,67 @@
+{
+  "title": "htmx-tagged",
+  "description": "htmx-tagged is a simple library that allows you to use tagged template literals to create htmx driven web applications.",
+  "header": [
+    {
+      "href": "/",
+      "text": "Home"
+    }
+  ],
+  "navigation": [
+    {
+      "label": "Guides",
+      "items": [
+        {
+          "doc": "guides/quick-start",
+          "text": "Quick Start"
+        },
+        {
+          "doc": "guides/data-loading",
+          "text": "Data Loading"
+        },
+        {
+          "doc": "guides/status-codes",
+          "text": "Status Codes"
+        },
+        {
+          "doc": "guides/data-mutation",
+          "text": "Data Mutation"
+        }
+      ]
+    },
+    {
+      "label": "APIs",
+      "items": [
+        {
+          "doc": "api/tagged",
+          "text": "HTML Tagged"
+        },
+        {
+          "doc": "api/server",
+          "text": "Server"
+        },
+        {
+          "doc": "api/assets",
+          "text": "Assets"
+        }
+      ]
+    },
+    {
+      "label": "External Links",
+      "items": [
+        {
+          "href": "https://htmx.org/",
+          "text": "HTMX"
+        },
+        {
+          "href": "https://htmx.org/extensions/loading-states/",
+          "text": "HTMX Loading States"
+        },
+        {
+          "href": "https://alpinejs.dev/",
+          "text": "Alpine.js"
+        }
+      ]
+    }
+  ]
+}
