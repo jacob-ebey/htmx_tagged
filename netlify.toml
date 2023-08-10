@@ -1,0 +1,3 @@
+[build]
+command = "(cd examples/docs && deno run -A main.ts)"
+publish = "."
