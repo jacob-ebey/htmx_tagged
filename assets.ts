@@ -1,10 +1,18 @@
-import * as path from "node:path"
+import createStatic from "https://deno.land/x/static_files@1.1.6/mod.ts"
 import * as esbuild from "https://deno.land/x/esbuild@v0.18.17/mod.js"
 import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.8.1/mod.ts"
+import * as path from "node:path"
 
 const cache = new Map<string, { contents: Uint8Array; href: string }>()
 const assets = new Map<string, string>()
 const staticFiles = new Map<string, Uint8Array>()
+const staticHandler = createStatic("public", {
+  index: "index.html",
+  fallthrough: true,
+  setHeaders(headers) {
+    headers.set("cache-control", "public, max-age=600, must-revalidate")
+  },
+})
 
 function getContentType(pathname: string) {
   let contentType = "text/plain"
@@ -55,24 +63,11 @@ export async function getAssetResponse(url: URL) {
     })
   }
 
-  if (url.pathname !== "/") {
-    const publicDir = path.join(Deno.cwd(), "public")
-    // map url pathname to file path in public directory
-    const filePath = path.join(publicDir, url.pathname.slice(1))
-    // check if file exists
-    try {
-      const contents = await Deno.readFile(filePath)
-      staticFiles.set(url.pathname, contents)
-      return new Response(contents, {
-        headers: {
-          "content-type": getContentType(url.pathname),
-          "cache-control": "public, max-age=600, s-maxage=600",
-        },
-      })
-    } catch {
-      // fall through
-    }
-  }
+  const staticResponse = await staticHandler({
+    request: new Request(url.href),
+    respondWith: (r: Response) => r,
+  })
+  if (staticResponse.status !== 404) return staticResponse
 }
 
 export async function stylesheet(href: `/${string}.css`) {

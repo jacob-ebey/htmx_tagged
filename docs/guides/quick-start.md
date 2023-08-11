@@ -21,6 +21,8 @@ import * as homePage from "./routes/home.ts"
 
 const dev = Deno.args[0] === "dev"
 
+export interface Context {}
+
 const routes: RouteConfig<Context>[] = [
   {
     id: "root",
@@ -48,6 +50,10 @@ const routes: RouteConfig<Context>[] = [
 await serve(routes, {
   dev,
   getAssetResponse,
+  middleware({ next }) {
+    const context: Context = {}
+    return next(context)
+  },
 })
 ```
 
@@ -60,11 +66,14 @@ little else. If it errors, the user will not get anything of value delivered.
 import {
   attr,
   html,
+  type LoaderArgs,
   type RouteProps,
 } from "https://deno.land/x/htmx_tagged/mod.ts"
 import { script, stylesheet } from "https://deno.land/x/htmx_tagged/assets.ts"
 
-export async function loader() {
+import type { Context } from "../main.ts"
+
+export async function loader({}: LoaderArgs<Context>) {
   const [entrySrc, stylesHref] = await Promise.all([
     script("/entry.ts").then((res) => res.href),
     stylesheet("/styles.css").then((res) => res.href),
@@ -81,7 +90,12 @@ export default function Document(
 ) {
   return html`
     <!DOCTYPE html>
-    <html lang="en">
+    <html
+      lang="en"
+      hx-boost="true"
+      hx-sync="this:replace"
+      hx-ext="loading-states"
+    >
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -92,11 +106,7 @@ export default function Document(
         <link rel="stylesheet" href=${attr(loaderData.stylesHref)} />
         <script defer src=${attr(loaderData.entrySrc)}></script>
       </head>
-      <body
-        hx-boost="true"
-        hx-sync="this:replace"
-        hx-ext="loading-states"
-      >
+      <body>
         <slot></slot>
       </body>
     </html>
@@ -235,7 +245,9 @@ And finally our 404 page.
 ```typescript
 import { html } from "https://deno.land/x/htmx_tagged/mod.ts"
 
-export function loader({ status }: LoaderArgs<unknown>) {
+import type { Context } from "../main.ts"
+
+export function loader({ status }: LoaderArgs<Context>) {
   status(404)
 }
 
