@@ -1,0 +1,11 @@
+{
+  "lock": false,
+  "tasks": {
+    "start": "deno run -A main.ts",
+    "dev": "deno run -A --watch=$(deno run -A watch.ts) main.ts dev"
+  },
+  "imports": {
+    "htmx_tagged": "../mod.ts",
+    "htmx_tagged/assets": "../assets.ts"
+  }
+}

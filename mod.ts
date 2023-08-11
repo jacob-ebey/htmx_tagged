@@ -202,6 +202,17 @@ async function serveHttp<Context>(
   }
 }
 
+async function callAction<Context>(
+  id: string,
+  args: ActionArgs<Context>,
+  action: (args: ActionArgs<Context>) => unknown,
+) {
+  try {
+    return { id, result: await action(args) };
+  } catch (reason) {
+    return { id, reason };
+  }
+}
 async function callLoader<Context>(
   id: string,
   args: LoaderArgs<Context>,
@@ -239,20 +250,38 @@ async function handleHttpRequest<Context>(
       }
     };
     try {
+      let actionId: string | undefined = undefined;
       const actionData: Record<string, unknown> = {};
+      let actionError: unknown | undefined = undefined;
       if (request.method === "POST") {
         let action: Action<Context> | undefined;
-        let id: string | undefined;
         for (let i = matches.length - 1; i >= 0; i--) {
           const match = matches[i];
           if (!match.module || !match.module.action) continue;
-          if (match.index && !url.searchParams.has("_index")) continue;
-          id = match.id;
+          if (match.index && !url.searchParams.has("index")) continue;
+          actionId = match.id;
           action = match.module.action;
           break;
         }
-        if (action && id) {
-          actionData[id] = await action({ context, request, status });
+        if (action && actionId) {
+          const actionResult = await callAction(actionId, {
+            context,
+            request,
+            status,
+          }, action);
+          if ("reason" in actionResult) {
+            if (
+              actionResult.reason && actionResult.reason instanceof Response
+            ) {
+              throw actionResult.reason;
+            }
+
+            actionError = actionResult.reason;
+            status(500);
+          } else {
+            actionData[actionId] = actionResult.result;
+          }
+          // actionData[id] = await action({ context, request, status });
         }
       }
 
@@ -283,11 +312,17 @@ async function handleHttpRequest<Context>(
           if (loaderResult.reason && loaderResult.reason instanceof Response) {
             throw loaderResult.reason;
           }
+          status(500);
           loaderErrors[loaderResult.id] = loaderResult.reason;
           hasErrors = true;
         } else {
           loaderData[loaderResult.id] = loaderResult.result;
         }
+      }
+
+      if (actionError && actionId) {
+        hasErrors = true;
+        loaderErrors[actionId] = actionError;
       }
 
       let shallowestErrorRouteId: string | undefined;
@@ -329,7 +364,6 @@ async function handleHttpRequest<Context>(
 
         if (deepestBoundaryRouteId === match.id) {
           RouteComponent = match.module.Boundary;
-          console.log(shallowestErrorRouteId, loaderErrors);
           props.error = loaderErrors[shallowestErrorRouteId!];
           if (!RouteComponent) {
             throw new Error("No error boundary found.");
@@ -378,7 +412,10 @@ async function handleHttpRequest<Context>(
     response.headers.has("Location")
   ) {
     response.headers.set("HX-Redirect", response.headers.get("Location") ?? "");
-  } else if (dev && response.body) {
+  } else if (
+    dev && response.body &&
+    response.headers.get("Content-Type")?.includes("text/html")
+  ) {
     const encoder = new TextEncoder();
     const transform = new TransformStream({
       flush(controller) {

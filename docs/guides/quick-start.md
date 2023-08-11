@@ -24,15 +24,15 @@ import * as homePage from "./routes/home.ts";
 
 const dev = Deno.args[0] === "dev";
 
-export interface Context {}
+export type Context = unknown;
 
 const routes: RouteConfig<Context>[] = [
   {
-    id: "root",
+    id: "_document",
     module: documentLayout,
     children: [
       {
-        id: "layout",
+        id: "_layout",
         module: globalLayout,
         children: [
           {
@@ -41,7 +41,7 @@ const routes: RouteConfig<Context>[] = [
             module: homePage,
           },
           {
-            id: "404",
+            id: "_404",
             path: "*",
             module: notFoundPage,
           },
@@ -141,9 +141,7 @@ declare global {
 if (!window.htmx) {
   // deno-lint-ignore no-explicit-any
   htmx.on("htmx:beforeSwap", (event: any) => {
-    if (event.detail.xhr.status !== 500) {
-      event.detail.shouldSwap = true;
-    }
+    event.detail.shouldSwap = true;
   });
 
   window.htmx = htmx;

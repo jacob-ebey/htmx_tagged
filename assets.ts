@@ -1,3 +1,4 @@
+import * as mediaTypes from "https://deno.land/x/media_types@v3.0.3/mod.ts";
 import createStatic from "https://deno.land/x/static_files@1.1.6/mod.ts";
 import * as esbuild from "https://deno.land/x/esbuild@v0.18.17/mod.js";
 import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.8.1/mod.ts";
@@ -18,39 +19,13 @@ const staticHandler = createStatic("public", {
   extensions: ["html"],
 });
 
-function getContentType(pathname: string) {
-  let contentType = "text/plain";
-  switch (pathname.split(".").pop()?.toLowerCase()) {
-    case "css":
-      contentType = "text/css";
-      break;
-    case "js":
-      contentType = "text/javascript";
-      break;
-    case "json":
-      contentType = "application/json";
-      break;
-    case "svg":
-      contentType = "image/svg+xml";
-      break;
-    case "png":
-      contentType = "image/png";
-      break;
-    case "ico":
-      contentType = "image/x-icon";
-      break;
-    case "webmanifest":
-      contentType = "application/manifest+json";
-      break;
-  }
-  return contentType;
-}
-
 export async function getAssetResponse(url: URL) {
   if (staticFiles.has(url.pathname)) {
     return new Response(staticFiles.get(url.pathname)!, {
       headers: {
-        "content-type": getContentType(url.pathname),
+        "content-type":
+          mediaTypes.contentType(path.extname(url.pathname) || "") ||
+          "text/plain",
         "cache-control": "public, max-age=600, s-maxage=600",
       },
     });
@@ -60,7 +35,9 @@ export async function getAssetResponse(url: URL) {
   if (cached) {
     return new Response(cached.contents, {
       headers: {
-        "content-type": getContentType(url.pathname),
+        "content-type":
+          mediaTypes.contentType(path.extname(url.pathname) || "") ||
+          "text/plain",
         "cache-control":
           "public, max-age=31536000, immutable, s-maxage=31536000",
       },
@@ -96,9 +73,22 @@ export async function stylesheet(href: `/${string}.css`) {
     bundle: true,
     write: false,
     minify: true,
+    metafile: true,
     assetNames: "[name]-[hash]",
     entryNames: "[name]-[hash]",
     chunkNames: "[name]-[hash]",
+    loader: {
+      ".woff": "file",
+      ".woff2": "file",
+      ".ttf": "file",
+      ".eot": "file",
+      ".png": "file",
+      ".jpg": "file",
+      ".jpeg": "file",
+      ".gif": "file",
+      ".svg": "file",
+      ".webp": "file",
+    },
   });
 
   if (buildResult.errors.length) {
@@ -116,12 +106,27 @@ export async function stylesheet(href: `/${string}.css`) {
     throw new Error(`No output files for stylesheet ${href}`);
   }
 
-  const cached = {
-    contents: buildResult.outputFiles[0].contents,
-    href: `/${path.relative(publicDir, buildResult.outputFiles[0].path)}`,
-  };
-  cache.set(cacheKey, cached);
-  assets.set(cached.href, cacheKey);
+  let cached: { contents: Uint8Array; href: string } | undefined = undefined;
+  for (const file of buildResult.outputFiles) {
+    const relative = path.relative(publicDir, file.path);
+    const tmpCached = {
+      contents: file.contents,
+      href: `/${relative}`,
+    };
+    cache.set(cacheKey, tmpCached);
+    assets.set(tmpCached.href, cacheKey);
+    if (
+      buildResult.metafile.outputs[relative].entryPoint &&
+      (("/" + buildResult.metafile.outputs[relative].entryPoint) === href)
+    ) {
+      cached = tmpCached;
+    }
+  }
+
+  if (!cached) {
+    throw new Error(`No output files for stylesheet ${href}`);
+  }
+
   return cached;
 }
 
@@ -146,6 +151,7 @@ export async function script(
     bundle: true,
     write: false,
     minify: true,
+    metafile: true,
     format: "esm",
     platform: "browser",
     target: "es2020",
@@ -172,7 +178,7 @@ export async function script(
 
   if (buildResult.errors.length) {
     throw new Error(
-      `Error building stylesheet ${href}: ${
+      `Error building script ${href}: ${
         (await esbuild.formatMessages(buildResult.errors, {
           kind: "error",
           color: true,
@@ -185,11 +191,26 @@ export async function script(
     throw new Error(`No output files for stylesheet ${href}`);
   }
 
-  const cached = {
-    contents: buildResult.outputFiles[0].contents,
-    href: `/${path.relative(publicDir, buildResult.outputFiles[0].path)}`,
-  };
-  cache.set(cacheKey, cached);
-  assets.set(cached.href, cacheKey);
+  let cached: { contents: Uint8Array; href: string } | undefined = undefined;
+  for (const file of buildResult.outputFiles) {
+    const relative = path.relative(publicDir, file.path);
+    const tmpCached = {
+      contents: file.contents,
+      href: `/${relative}`,
+    };
+    cache.set(cacheKey, tmpCached);
+    assets.set(tmpCached.href, cacheKey);
+    if (
+      buildResult.metafile.outputs[relative].entryPoint &&
+      (("/" + buildResult.metafile.outputs[relative].entryPoint) === href)
+    ) {
+      cached = tmpCached;
+    }
+  }
+
+  if (!cached) {
+    throw new Error(`No output files for stylesheet ${href}`);
+  }
+
   return cached;
 }
