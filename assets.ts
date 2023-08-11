@@ -10,7 +10,7 @@ const staticHandler = createStatic("public", {
   index: "index.html",
   fallthrough: true,
   setHeaders(headers) {
-    headers.set("cache-control", "public, max-age=600, must-revalidate")
+    headers.set("cache-control", "public, max-age=600, s-maxage=600 must-revalidate")
   },
   extensions: ["html"],
 })
