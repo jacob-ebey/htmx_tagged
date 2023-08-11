@@ -1,17 +1,17 @@
-import { html, type LoaderArgs, type RouteProps } from "../../../mod.ts"
+import { html, type LoaderArgs, type RouteProps } from "../../../mod.ts";
 
-import { AuthSection, loader as authSectionLoader } from "./auth.ts"
-import type { Context } from "../main.ts"
+import { AuthSection, loader as authSectionLoader } from "./auth.ts";
+import type { Context } from "../main.ts";
 
 export async function loader(
   args: LoaderArgs<Context>,
 ) {
-  const { context: { getAuthenticated } } = args
+  const { context: { getAuthenticated } } = args;
 
   return {
     authenticated: !!getAuthenticated(),
     authSection: await authSectionLoader(args),
-  }
+  };
 }
 
 export default function Home({ loaderData }: RouteProps<typeof loader>) {
@@ -26,7 +26,7 @@ export default function Home({ loaderData }: RouteProps<typeof loader>) {
           </p>
         </article>
       </main>
-    `
+    `;
   }
 
   return html`
@@ -51,5 +51,5 @@ export default function Home({ loaderData }: RouteProps<typeof loader>) {
       </article>
       ${AuthSection({ loaderData: loaderData.authSection })}
     </main>
-  `
+  `;
 }

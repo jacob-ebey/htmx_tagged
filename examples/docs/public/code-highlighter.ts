@@ -1,26 +1,26 @@
 /// <reference lib="dom" />
 
-import * as Prism from "/speed-highlighter/mod.js?external"
+import * as Prism from "/speed-highlighter/mod.js?external";
 
 declare global {
   interface Window {
-    __codeHighlighterDefined?: boolean
+    __codeHighlighterDefined?: boolean;
   }
 }
 
 if (!window.__codeHighlighterDefined) {
-  window.__codeHighlighterDefined = true
+  window.__codeHighlighterDefined = true;
   customElements.define(
     "code-highlighter",
     class extends HTMLElement {
-      private observer: MutationObserver
+      private observer: MutationObserver;
 
       constructor() {
-        super()
+        super();
         this.observer = new MutationObserver(() => {
-          this.observer.disconnect()
+          this.observer.disconnect();
 
-          const code = this.querySelector("[data-code]")!
+          const code = this.querySelector("[data-code]")!;
           if (!code.hasAttribute("data-lang")) {
             Prism.highlightElement(
               code,
@@ -29,19 +29,19 @@ if (!window.__codeHighlighterDefined) {
               {
                 hideLineNumbers: true,
               },
-            )
+            );
           }
 
           this.observer.observe(this, {
             attributes: true,
             childList: true,
             subtree: true,
-          })
-        })
+          });
+        });
       }
 
       connectedCallback() {
-        const code = this.querySelector("[data-code]")!
+        const code = this.querySelector("[data-code]")!;
         if (!code.hasAttribute("data-lang")) {
           Prism.highlightElement(
             code,
@@ -50,19 +50,19 @@ if (!window.__codeHighlighterDefined) {
             {
               hideLineNumbers: true,
             },
-          )
+          );
         }
 
         this.observer.observe(this, {
           attributes: true,
           childList: true,
           subtree: true,
-        })
+        });
       }
 
       disconnectedCallback() {
-        this.observer.disconnect()
+        this.observer.disconnect();
       }
     },
-  )
+  );
 }

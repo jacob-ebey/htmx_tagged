@@ -16,21 +16,21 @@ import {
   type LoaderArgs,
   type RouteProps,
   value,
-} from "https://deno.land/x/htmx_tagged/mod.ts"
+} from "https://deno.land/x/htmx_tagged/mod.ts";
 
-import type { Context } from "../main.ts"
+import type { Context } from "../main.ts";
 
 export function loader({ request }: LoaderArgs<Context>) {
-  const url = new URL(request.url)
-  const name = url.searchParams.get("name") || "World"
+  const url = new URL(request.url);
+  const name = url.searchParams.get("name") || "World";
 
   return {
     message: `Hello, ${name}!`,
-  }
+  };
 }
 
 export default function Route({ loaderData }: RouteProps<typeof loader>) {
-  return html`<h1>${value(loaderData.message)}</h1>`
+  return html`<h1>${value(loaderData.message)}</h1>`;
 }
 ```
 
@@ -47,7 +47,7 @@ export default function Layout() {
     <div class="header" data-loading-class="header__loading">
       ...
     </div>
-  `
+  `;
 }
 ```
 

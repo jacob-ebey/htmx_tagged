@@ -1,18 +1,18 @@
-import { type RouteConfig, serve } from "../../mod.ts"
+import { type RouteConfig, serve } from "htmx_tagged";
 
-import { getAssetResponse } from "../../assets.ts"
+import { getAssetResponse } from "htmx_tagged/assets";
 
-import CodeHighlighter from "./elements/code-highlighter.ts"
+import CodeHighlighter from "./elements/code-highlighter.ts";
 
-import * as documentLayout from "./routes/_document.ts"
-import * as globalLayout from "./routes/_layout.ts"
-import * as catchAllPage from "./routes/catchall.ts"
+import * as documentLayout from "./routes/_document.ts";
+import * as globalLayout from "./routes/_layout.ts";
+import * as catchAllPage from "./routes/catchall.ts";
 
-const dev = Deno.args[0] === "dev"
+const dev = Deno.args[0] === "dev";
 
 export type Context = {
-  docs: string
-}
+  docs: string;
+};
 
 const routes: RouteConfig<Context>[] = [
   {
@@ -37,7 +37,7 @@ const routes: RouteConfig<Context>[] = [
       },
     ],
   },
-]
+];
 
 await serve(routes, {
   dev,
@@ -48,6 +48,6 @@ await serve(routes, {
   middleware({ next }) {
     return next({
       docs: "../../docs",
-    })
+    });
   },
-})
+});

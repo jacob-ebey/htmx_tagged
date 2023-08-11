@@ -1,19 +1,12 @@
-import { type CustomElementArgs } from "../../../mod.ts"
+import { attr, type CustomElementArgs, html } from "htmx_tagged";
+import { script } from "htmx_tagged/assets";
 
-import { attr, html } from "../../../mod.ts"
-import { script } from "../../../assets.ts"
-
-const codeHighlighterSrc = (await script("/code-highlighter.ts")).href
+const codeHighlighterSrc = (await script("/code-highlighter.ts")).href;
 
 export default function CodeHighlighter({ attrs }: CustomElementArgs) {
   return html`
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/@speed-highlight/core@1.2.4/dist/themes/github-dark.css"
-    />
-
-    <div data-code class=${attr(attrs.lang)}><slot></slot></div>
+    <pre><div data-code class=${attr(attrs.lang)}><slot></slot></div></pre>
 
     <script async type="module" src=${attr(codeHighlighterSrc)} />
-  `
+  `;
 }

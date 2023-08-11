@@ -1,26 +1,26 @@
-import { connect } from "npm:@planetscale/database@1.10.0"
-import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts"
+import { connect } from "npm:@planetscale/database@1.10.0";
+import * as bcrypt from "https://deno.land/x/bcrypt@v0.4.1/mod.ts";
 
-import "./env.ts"
+import "./env.ts";
 
-const migrate = Deno.args.includes("migrate")
+const migrate = Deno.args.includes("migrate");
 
 declare global {
   interface Window {
-    __db_conn: ReturnType<typeof connect>
+    __db_conn: ReturnType<typeof connect>;
   }
 }
 
-const sql = String.raw
+const sql = String.raw;
 
 export const conn = connect({
   host: Deno.env.get("DATABASE_HOST"),
   username: Deno.env.get("DATABASE_USERNAME"),
   password: Deno.env.get("DATABASE_PASSWORD"),
-})
+});
 
 if (migrate) {
-  console.log("Migrating database...")
+  console.log("Migrating database...");
 
   await conn.execute(
     sql`
@@ -33,12 +33,12 @@ if (migrate) {
         UNIQUE KEY email (email)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
     `,
-  )
+  );
 }
 
 export async function login({ email, password }: {
-  email: string
-  password: string
+  email: string;
+  password: string;
 }) {
   const result = await conn.execute(
     sql`
@@ -46,42 +46,42 @@ export async function login({ email, password }: {
     `,
     [email],
     { as: "object" },
-  )
+  );
 
   if (result.rows.length !== 1) {
-    return null
+    return null;
   }
 
-  const user = result.rows[0] as { id: string; hashedPassword: string }
+  const user = result.rows[0] as { id: string; hashedPassword: string };
 
-  const valid = await bcrypt.compare(password, user.hashedPassword)
+  const valid = await bcrypt.compare(password, user.hashedPassword);
   if (!valid) {
-    return null
+    return null;
   }
 
   return {
     id: user.id,
-  }
+  };
 }
 
 export async function signup({ email, password }: {
-  email: string
-  password: string
+  email: string;
+  password: string;
 }) {
-  const hashedPassword = await bcrypt.hash(password)
+  const hashedPassword = await bcrypt.hash(password);
 
   const result = await conn.execute(
     sql`
       INSERT INTO users (email, hashedPassword) VALUES (?, ?)
     `,
     [email, hashedPassword],
-  )
+  );
 
   if (result.rowsAffected !== 1) {
-    return null
+    return null;
   }
 
   return {
     id: result.insertId,
-  }
+  };
 }

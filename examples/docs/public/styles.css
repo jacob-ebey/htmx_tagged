@@ -1,3 +1,5 @@
+@import "./github-dark.css";
+
 :root {
   --color-foreground: hsl(0, 0%, 7%);
   --color-background: hsl(0, 0%, 100%);

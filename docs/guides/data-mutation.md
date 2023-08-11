@@ -19,24 +19,24 @@ import {
   html,
   type RouteProps,
   value,
-} from "https://deno.land/x/htmx_tagged/mod.ts"
+} from "https://deno.land/x/htmx_tagged/mod.ts";
 
-import type { Context } from "../main.ts"
+import type { Context } from "../main.ts";
 
 export async function action({ request, status }: ActionArgs<Context>) {
-  const formData = await request.formData()
-  const name = formData.get("name")
+  const formData = await request.formData();
+  const name = formData.get("name");
 
   if (!name) {
-    status(400)
+    status(400);
     return {
       message: "Please enter a name.",
-    }
+    };
   }
 
   return {
     message: `Hello, ${name}!`,
-  }
+  };
 }
 
 export default function Route(
@@ -50,7 +50,7 @@ export default function Route(
         ${actionData?.message && html`<p>${value(actionData.message)}</p>`}
       </fieldset>
     </form>
-  `
+  `;
 }
 ```
 
@@ -71,6 +71,6 @@ export default function Route(
         ${actionData?.message && html`<p>${value(actionData.message)}</p>`}
       </fieldset>
     </form>
-  `
+  `;
 }
 ```

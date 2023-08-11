@@ -15,9 +15,8 @@ COPY . .
 WORKDIR /app/examples/docs
 
 # Compile the main app so that it doesn't need to be compiled each startup/entry.
-RUN deno cache main.ts
+RUN deno cache main.ts public/entry.ts
 
 RUN deno run -A ssg.ts public
 
-
-CMD ["run", "-A", "main.ts"]
+CMD ["task", "start"]

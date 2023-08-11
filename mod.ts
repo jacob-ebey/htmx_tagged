@@ -1,25 +1,25 @@
-import { type HTMLNode, isHTMLTag } from "npm:html-tagged@0.0.8"
+import { type HTMLNode, isHTMLTag } from "npm:html-tagged@0.0.8";
 import {
   type CustomElement,
   renderToString,
-} from "npm:html-tagged@0.0.8/server"
+} from "npm:html-tagged@0.0.8/server";
 import {
   createTrie,
   type IndexRouteConfig as BaseIndexRouteConfig,
   matchTrie,
   type Node as RouteNode,
   type NonIndexRouteConfig as BaseNonIndexRouteConfig,
-} from "npm:router-trie@0.0.10"
+} from "npm:router-trie@0.0.10";
 
-export * from "npm:html-tagged@0.0.8"
+export * from "npm:html-tagged@0.0.8";
 export type {
   CustomElement,
   CustomElementArgs,
-} from "npm:html-tagged@0.0.8/server"
+} from "npm:html-tagged@0.0.8/server";
 
 declare global {
   interface Window {
-    __remix_build_time: number
+    __remix_build_time: number;
   }
 }
 
@@ -29,9 +29,9 @@ export type RouteProps<
   // deno-lint-ignore no-explicit-any
   TAction extends Action<any> = Action<unknown>,
 > = {
-  actionData?: Awaited<ReturnType<TAction>>
-  loaderData: Awaited<ReturnType<TLoader>>
-}
+  actionData?: Awaited<ReturnType<TAction>>;
+  loaderData: Awaited<ReturnType<TLoader>>;
+};
 
 export type RouteComponent<
   // deno-lint-ignore no-explicit-any
@@ -40,7 +40,7 @@ export type RouteComponent<
   TAction extends Action<any>,
 > = (
   props: RouteProps<TLoader, TAction>,
-) => HTMLNode
+) => HTMLNode;
 
 export type BoundaryProps<
   // deno-lint-ignore no-explicit-any
@@ -48,10 +48,10 @@ export type BoundaryProps<
   // deno-lint-ignore no-explicit-any
   TAction extends Action<any> = Action<unknown>,
 > = {
-  actionData?: Awaited<ReturnType<TAction>>
-  loaderData?: Awaited<ReturnType<TLoader>>
-  error: unknown
-}
+  actionData?: Awaited<ReturnType<TAction>>;
+  loaderData?: Awaited<ReturnType<TLoader>>;
+  error: unknown;
+};
 
 export type BoundaryComponent<
   // deno-lint-ignore no-explicit-any
@@ -60,96 +60,96 @@ export type BoundaryComponent<
   TAction extends Action<any>,
 > = (
   props: BoundaryProps<TLoader, TAction>,
-) => HTMLNode
+) => HTMLNode;
 
 export type ActionArgs<Context> = {
-  context: Context
-  request: Request
-  status(code: number): void
-}
+  context: Context;
+  request: Request;
+  status(code: number): void;
+};
 
-export type Action<Context> = (args: ActionArgs<Context>) => unknown
+export type Action<Context> = (args: ActionArgs<Context>) => unknown;
 
 export type LoaderArgs<Context> = {
-  context: Context
-  request: Request
-  status(code: number): void
-}
+  context: Context;
+  request: Request;
+  status(code: number): void;
+};
 
-export type Loader<Context> = (args: LoaderArgs<Context>) => unknown
+export type Loader<Context> = (args: LoaderArgs<Context>) => unknown;
 
 export type RouteModule<
   Context = unknown,
   TLoader extends Loader<Context> = Loader<Context>,
   TAction extends Action<Context> = Action<Context>,
 > = {
-  action?: TAction
-  loader?: TLoader
-  default?: RouteComponent<TLoader, TAction>
-  Boundary?: BoundaryComponent<TLoader, TAction>
-}
+  action?: TAction;
+  loader?: TLoader;
+  default?: RouteComponent<TLoader, TAction>;
+  Boundary?: BoundaryComponent<TLoader, TAction>;
+};
 
 export type BaseTaggedRouteConfig<Context> = {
-  module?: RouteModule<Context>
-}
+  module?: RouteModule<Context>;
+};
 
 export type IndexRouteConfig<Context> =
   & BaseIndexRouteConfig
-  & BaseTaggedRouteConfig<Context>
+  & BaseTaggedRouteConfig<Context>;
 
 export type NonIndexRouteConfig<Context> =
   & Omit<BaseNonIndexRouteConfig, "children">
   & BaseTaggedRouteConfig<Context>
   & {
-    children?: RouteConfig<Context>[]
-  }
+    children?: RouteConfig<Context>[];
+  };
 
 export type RouteConfig<Context = unknown> =
   | IndexRouteConfig<Context>
-  | NonIndexRouteConfig<Context>
+  | NonIndexRouteConfig<Context>;
 
 export type GetAssetResponseFunction = (
   url: URL,
-) => Response | undefined | Promise<Response | undefined>
+) => Response | undefined | Promise<Response | undefined>;
 
 export type RequestMiddleware<Context> = (
   args: {
-    request: Request
-    next: (context: Context) => Promise<Response>
+    request: Request;
+    next: (context: Context) => Promise<Response>;
   },
-) => Promise<Response>
+) => Promise<Response>;
 
 export type ServeOptions<Context> = {
-  dev?: boolean
-  elements?: Record<string, CustomElement<Record<string, string>>>
-  getAssetResponse?: GetAssetResponseFunction
-  middleware?: RequestMiddleware<Context>
-  port?: number
-}
+  dev?: boolean;
+  elements?: Record<string, CustomElement<Record<string, string>>>;
+  getAssetResponse?: GetAssetResponseFunction;
+  middleware?: RequestMiddleware<Context>;
+  port?: number;
+};
 
 export async function serve<Context = unknown>(
   routes: RouteConfig<Context>[],
   options?: ServeOptions<Context>,
 ) {
-  window.__remix_build_time = Date.now()
-  const dev = options?.dev
-  const elements = options?.elements
-  const port = options?.port ?? 3000
-  const getAssetResponse = options?.getAssetResponse
+  window.__remix_build_time = Date.now();
+  const dev = options?.dev;
+  const elements = options?.elements;
+  const port = options?.port ?? 3000;
+  const getAssetResponse = options?.getAssetResponse;
   const middleware: RequestMiddleware<Context> = options?.middleware ??
     (({ next }) => {
-      return next(undefined as Context)
-    })
+      return next(undefined as Context);
+    });
 
-  const trie = createTrie(routes)
+  const trie = createTrie(routes);
 
-  const server = Deno.listen({ port })
-  console.log(`Listening on http://localhost:${port}/`)
+  const server = Deno.listen({ port });
+  console.log(`Listening on http://localhost:${port}/`);
   for await (const conn of server) {
     serveHttp(conn, trie, elements, middleware, getAssetResponse, dev)
       .catch((e) => {
-        console.error(e.type, e)
-      })
+        console.error(e.type, e);
+      });
   }
 }
 
@@ -161,19 +161,19 @@ async function serveHttp<Context>(
   getAssetResponse?: GetAssetResponseFunction,
   dev?: boolean,
 ) {
-  const httpConn = Deno.serveHttp(conn)
+  const httpConn = Deno.serveHttp(conn);
   for await (const requestEvent of httpConn) {
-    const { request } = requestEvent
-    let sentResponse = false
+    const { request } = requestEvent;
+    let sentResponse = false;
     try {
-      let response: Response | undefined
-      const url = new URL(request.url)
+      let response: Response | undefined;
+      const url = new URL(request.url);
 
       if (dev && url.pathname === "/__dev_reload") {
-        response = await devSSEResponse()
+        response = await devSSEResponse();
       }
       if (!response) {
-        response = await getAssetResponse?.(new URL(request.url))
+        response = await getAssetResponse?.(new URL(request.url));
       }
       if (!response) {
         response = await handleHttpRequest<Context>(
@@ -182,21 +182,21 @@ async function serveHttp<Context>(
           elements,
           middleware,
           dev,
-        )
+        );
       }
-      sentResponse = true
-      await requestEvent.respondWith(response)
+      sentResponse = true;
+      await requestEvent.respondWith(response);
     } catch (error) {
       if (error?.message?.startsWith?.("connection closed")) {
-        return
+        return;
       }
-      console.error(error)
+      console.error(error);
       if (!sentResponse) {
         await requestEvent.respondWith(
           new Response("Internal server error", {
             status: 500,
           }),
-        )
+        );
       }
     }
   }
@@ -208,9 +208,9 @@ async function callLoader<Context>(
   loader: (args: LoaderArgs<Context>) => unknown,
 ) {
   try {
-    return { id, result: await loader(args) }
+    return { id, result: await loader(args) };
   } catch (reason) {
-    return { id, reason }
+    return { id, reason };
   }
 }
 
@@ -221,42 +221,42 @@ async function handleHttpRequest<Context>(
   middleware: RequestMiddleware<Context>,
   dev?: boolean,
 ) {
-  let response: Response
+  let response: Response;
 
-  const url = new URL(request.url)
+  const url = new URL(request.url);
 
-  const matches = matchTrie(trie, url.pathname)
+  const matches = matchTrie(trie, url.pathname);
 
   if (!matches) {
-    return new Response("Not Found", { status: 404 })
+    return new Response("Not Found", { status: 404 });
   }
 
   const next = async (context: Context): Promise<Response> => {
-    let statusCode = 200
+    let statusCode = 200;
     const status = (code: number) => {
       if (code > statusCode) {
-        statusCode = code
+        statusCode = code;
       }
-    }
+    };
     try {
-      const actionData: Record<string, unknown> = {}
+      const actionData: Record<string, unknown> = {};
       if (request.method === "POST") {
-        let action: Action<Context> | undefined
-        let id: string | undefined
+        let action: Action<Context> | undefined;
+        let id: string | undefined;
         for (let i = matches.length - 1; i >= 0; i--) {
-          const match = matches[i]
-          if (!match.module || !match.module.action) continue
-          if (match.index && !url.searchParams.has("_index")) continue
-          id = match.id
-          action = match.module.action
-          break
+          const match = matches[i];
+          if (!match.module || !match.module.action) continue;
+          if (match.index && !url.searchParams.has("_index")) continue;
+          id = match.id;
+          action = match.module.action;
+          break;
         }
         if (action && id) {
-          actionData[id] = await action({ context, request, status })
+          actionData[id] = await action({ context, request, status });
         }
       }
 
-      const promises = []
+      const promises = [];
       for (const match of matches) {
         if (
           match.module &&
@@ -267,92 +267,92 @@ async function handleHttpRequest<Context>(
             match.id,
             { context, request, status },
             match.module.loader,
-          )
-          promises.push(loaderPromise)
+          );
+          promises.push(loaderPromise);
         }
       }
 
-      await Promise.allSettled(promises)
+      await Promise.allSettled(promises);
 
-      const loaderData: Record<string, unknown> = {}
-      const loaderErrors: Record<string, unknown> = {}
-      let hasErrors = false
+      const loaderData: Record<string, unknown> = {};
+      const loaderErrors: Record<string, unknown> = {};
+      let hasErrors = false;
       for (const promise of promises) {
-        const loaderResult = await promise
+        const loaderResult = await promise;
         if ("reason" in loaderResult) {
           if (loaderResult.reason && loaderResult.reason instanceof Response) {
-            throw loaderResult.reason
+            throw loaderResult.reason;
           }
-          loaderErrors[loaderResult.id] = loaderResult.reason
-          hasErrors = true
+          loaderErrors[loaderResult.id] = loaderResult.reason;
+          hasErrors = true;
         } else {
-          loaderData[loaderResult.id] = loaderResult.result
+          loaderData[loaderResult.id] = loaderResult.result;
         }
       }
 
-      let shallowestErrorRouteId: string | undefined
-      let deepestBoundaryRouteId: string | undefined
-      let deepestRouteToRender: number | undefined = matches.length - 1
+      let shallowestErrorRouteId: string | undefined;
+      let deepestBoundaryRouteId: string | undefined;
+      let deepestRouteToRender: number | undefined = matches.length - 1;
       if (hasErrors) {
         for (let i = 0; i < matches.length; i++) {
           if (matches[i].module?.Boundary) {
-            deepestRouteToRender = i
-            deepestBoundaryRouteId = matches[i].id
+            deepestRouteToRender = i;
+            deepestBoundaryRouteId = matches[i].id;
           }
           if (matches[i].id in loaderErrors) {
-            shallowestErrorRouteId = matches[i].id
-            break
+            shallowestErrorRouteId = matches[i].id;
+            break;
           }
         }
 
         if (!shallowestErrorRouteId || !deepestBoundaryRouteId) {
-          throw new Error("No error boundary found.")
+          throw new Error("No error boundary found.");
         }
       }
 
       /** @type {import("html-tagged").HTMLNode} */
-      let lastNode = null
+      let lastNode = null;
       for (let i = deepestRouteToRender; i >= 0; i--) {
-        const match = matches[i]
+        const match = matches[i];
 
-        if (!match.module) continue
+        if (!match.module) continue;
         let RouteComponent:
           | RouteComponent<Loader<Context>, Action<Context>>
           | BoundaryComponent<Loader<Context>, Action<Context>>
-          | undefined = match.module.default
+          | undefined = match.module.default;
 
         // deno-lint-ignore no-explicit-any
         const props: any = {
           actionData: actionData[match.id],
           loaderData: loaderData[match.id],
-        }
+        };
 
         if (deepestBoundaryRouteId === match.id) {
-          RouteComponent = match.module.Boundary
-          console.log(shallowestErrorRouteId, loaderErrors)
-          props.error = loaderErrors[shallowestErrorRouteId!]
+          RouteComponent = match.module.Boundary;
+          console.log(shallowestErrorRouteId, loaderErrors);
+          props.error = loaderErrors[shallowestErrorRouteId!];
           if (!RouteComponent) {
-            throw new Error("No error boundary found.")
+            throw new Error("No error boundary found.");
           }
         }
 
-        if (!RouteComponent) continue
+        if (!RouteComponent) continue;
 
-        const htmlNode = RouteComponent(props)
+        const htmlNode = RouteComponent(props);
 
         if (htmlNode[2] && lastNode?.[2]) {
           const slotIndex = htmlNode[2].findIndex(
             (n) => isHTMLTag(n) && n[2] === "slot",
-          )
+          );
           if (slotIndex !== -1) {
-            htmlNode[2].splice(slotIndex, 2, ...lastNode[2])
+            htmlNode[2].splice(slotIndex, 2, ...lastNode[2]);
           }
         }
-        lastNode = htmlNode
+        lastNode = htmlNode;
       }
 
       if (!lastNode) {
-        throw new Error("One of the routes forgot to return a node.")
+        throw new Error("One of the routes forgot to return a node.");
       }
 
       return new Response(renderToString(lastNode, { elements }), {
@@ -360,16 +360,16 @@ async function handleHttpRequest<Context>(
         headers: {
           "Content-Type": "text/html;charset=utf-8",
         },
-      })
+      });
     } catch (reason) {
       if (!(reason instanceof Response)) {
-        throw reason
+        throw reason;
       }
-      return reason
+      return reason;
     }
-  }
+  };
 
-  response = await middleware({ request, next })
+  response = await middleware({ request, next });
 
   // is redirect
   if (
@@ -377,9 +377,9 @@ async function handleHttpRequest<Context>(
     response.status < 400 &&
     response.headers.has("Location")
   ) {
-    response.headers.set("HX-Redirect", response.headers.get("Location") ?? "")
+    response.headers.set("HX-Redirect", response.headers.get("Location") ?? "");
   } else if (dev && response.body) {
-    const encoder = new TextEncoder()
+    const encoder = new TextEncoder();
     const transform = new TransformStream({
       flush(controller) {
         controller.enqueue(encoder.encode(`
@@ -407,36 +407,36 @@ async function handleHttpRequest<Context>(
               });
             }
           </script>
-        `))
+        `));
       },
-    })
-    response.body.pipeThrough(transform)
-    response = new Response(transform.readable, response)
+    });
+    response.body.pipeThrough(transform);
+    response = new Response(transform.readable, response);
   }
 
-  return response
+  return response;
 }
 
 function devSSEResponse() {
-  const encoder = new TextEncoder()
-  let interval: number | undefined
+  const encoder = new TextEncoder();
+  let interval: number | undefined;
   const body = new ReadableStream({
     start(controller) {
       controller.enqueue(
         encoder.encode(`data: ${window.__remix_build_time}\nretry: 100\n\n`),
-      )
+      );
       interval = setInterval(() => {
         controller.enqueue(
           encoder.encode(`data: ${window.__remix_build_time}\n\n`),
-        )
-      }, 500)
+        );
+      }, 500);
     },
     cancel() {
       if (interval !== undefined) {
-        clearInterval(interval)
+        clearInterval(interval);
       }
     },
-  })
+  });
 
   return new Response(
     body,
@@ -447,5 +447,5 @@ function devSSEResponse() {
         Connection: "keep-alive",
       },
     },
-  )
+  );
 }

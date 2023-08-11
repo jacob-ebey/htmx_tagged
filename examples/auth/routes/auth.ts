@@ -1,5 +1,5 @@
-import cn from "npm:clsx@2.0.0"
-import { email, minLength, object, string, ValiError } from "npm:valibot@0.8.0"
+import cn from "npm:clsx@2.0.0";
+import { email, minLength, object, string, ValiError } from "npm:valibot@0.8.0";
 
 import {
   type ActionArgs,
@@ -8,29 +8,29 @@ import {
   type LoaderArgs,
   type RouteProps,
   value,
-} from "../../../mod.ts"
+} from "../../../mod.ts";
 
-import * as form from "../behaviors/form.ts"
-import * as db from "../db.ts"
-import type { Context } from "../main.ts"
+import * as form from "../behaviors/form.ts";
+import * as db from "../db.ts";
+import type { Context } from "../main.ts";
 
 export function loader({ request }: LoaderArgs<Context>) {
-  const url = new URL(request.url)
-  const intent = url.searchParams.get("intent") ?? "login"
-  const redirect_to = form.safeRedirect(url.searchParams.get("redirect_to"))
-  const redirectSearchParams = new URLSearchParams({ redirect_to }).toString()
+  const url = new URL(request.url);
+  const intent = url.searchParams.get("intent") ?? "login";
+  const redirect_to = form.safeRedirect(url.searchParams.get("redirect_to"));
+  const redirectSearchParams = new URLSearchParams({ redirect_to }).toString();
   const newSearchParams = new URLSearchParams({
     intent,
     redirect_to,
-  })
-  const action = `/auth?${newSearchParams.toString()}`
+  });
+  const action = `/auth?${newSearchParams.toString()}`;
 
   return {
     action,
     intent,
     pathname: url.pathname,
     redirectSearchParams,
-  }
+  };
 }
 
 export default function Auth(props: RouteProps<typeof loader, typeof action>) {
@@ -40,20 +40,20 @@ export default function Auth(props: RouteProps<typeof loader, typeof action>) {
           ${AuthSection(props)}
         </div>
     </main>
-  `
+  `;
 }
 
 export function AuthSection(
   { actionData, loaderData }: RouteProps<typeof loader, typeof action>,
 ) {
   const loginHref =
-    `${loaderData.pathname}?intent=login&${loaderData.redirectSearchParams}`
+    `${loaderData.pathname}?intent=login&${loaderData.redirectSearchParams}`;
   const signupHref =
-    `${loaderData.pathname}?intent=signup&${loaderData.redirectSearchParams}`
+    `${loaderData.pathname}?intent=signup&${loaderData.redirectSearchParams}`;
 
   const passwordAutocomplete = loaderData.intent === "signup"
     ? "new-password"
-    : "current-password"
+    : "current-password";
 
   return html`
     <section>
@@ -147,20 +147,20 @@ export function AuthSection(
         </fieldset>
       </form>
     </section>
-  `
+  `;
 }
 
 function ErrorMessage(errors: string[] | undefined) {
-  if (!errors?.length) return null
+  if (!errors?.length) return null;
   return html`
     <span class="error">${value(errors.join(". "))}.</span>
-  `
+  `;
 }
 
 const loginSchema = object({
   email: string([email()]),
   password: string([minLength(8, "Password must be at least 8 characters")]),
-})
+});
 
 const signupSchema = object({
   email: string([email()]),
@@ -168,7 +168,7 @@ const signupSchema = object({
   verifyPassword: string([
     minLength(8, "Password must be at least 8 characters"),
   ]),
-})
+});
 
 export function action({
   context: {
@@ -177,21 +177,21 @@ export function action({
   request,
   status,
 }: ActionArgs<Context>) {
-  const url = new URL(request.url)
-  const intent = url.searchParams.get("intent") ?? "login"
-  const safeRedirect = form.safeRedirect(url.searchParams.get("redirect_to"))
+  const url = new URL(request.url);
+  const intent = url.searchParams.get("intent") ?? "login";
+  const safeRedirect = form.safeRedirect(url.searchParams.get("redirect_to"));
 
   const redirectToTarget = () => {
     throw new Response("", {
       status: 302,
       headers: { Location: safeRedirect },
-    })
-  }
+    });
+  };
 
   switch (intent) {
     case "logout":
-      setAuthenticated(null)
-      return redirectToTarget()
+      setAuthenticated(null);
+      return redirectToTarget();
 
     case "login":
       return form.run(
@@ -199,16 +199,16 @@ export function action({
         request,
         status,
         async (data) => {
-          const user = await db.login(data)
+          const user = await db.login(data);
           if (!user) {
-            throw new form.FormError("Invalid email or password", 401)
+            throw new form.FormError("Invalid email or password", 401);
           }
 
-          setAuthenticated(user)
-          return null
+          setAuthenticated(user);
+          return null;
         },
         redirectToTarget,
-      )
+      );
 
     case "signup":
       return form.run(
@@ -233,20 +233,20 @@ export function action({
                   },
                 ],
               },
-            ])
+            ]);
           }
 
-          const user = await db.signup(data)
+          const user = await db.signup(data);
           if (!user) {
-            throw new form.FormError("Invalid email or password", 401)
+            throw new form.FormError("Invalid email or password", 401);
           }
 
-          return setAuthenticated(user)
+          return setAuthenticated(user);
         },
         redirectToTarget,
-      )
+      );
 
     default:
-      return form.error("Invalid auth intent", status)
+      return form.error("Invalid auth intent", status);
   }
 }

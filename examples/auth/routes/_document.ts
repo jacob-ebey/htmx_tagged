@@ -1,16 +1,16 @@
-import { attr, html, type RouteProps } from "../../../mod.ts"
-import { script, stylesheet } from "../../../assets.ts"
+import { attr, html, type RouteProps } from "../../../mod.ts";
+import { script, stylesheet } from "../../../assets.ts";
 
 export async function loader() {
   const [entrySrc, stylesHref] = await Promise.all([
     script("/entry.ts").then((res) => res.href),
     stylesheet("/styles.css").then((res) => res.href),
-  ])
+  ]);
 
   return {
     entrySrc,
     stylesHref,
-  }
+  };
 }
 
 export default function Document(
@@ -37,5 +37,5 @@ export default function Document(
         <slot></slot>
       </body>
     </html>
-  `
+  `;
 }

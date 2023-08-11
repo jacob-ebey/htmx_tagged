@@ -1,16 +1,16 @@
 async function getNames(currentPath: string): Promise<string[]> {
-  const names: string[] = []
+  const names: string[] = [];
 
   for await (const dirEntry of Deno.readDir(currentPath)) {
-    const entryPath = `${currentPath}/${dirEntry.name}`
-    names.push(entryPath)
+    const entryPath = `${currentPath}/${dirEntry.name}`;
+    names.push(entryPath);
 
     if (dirEntry.isDirectory) {
-      names.push(...(await getNames(entryPath)))
+      names.push(...(await getNames(entryPath)));
     }
   }
 
-  return names
+  return names;
 }
 
 console.log(
@@ -20,4 +20,4 @@ console.log(
   ].join(
     ",",
   ),
-)
+);

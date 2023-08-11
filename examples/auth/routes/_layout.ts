@@ -4,25 +4,25 @@ import {
   type LoaderArgs,
   type RouteProps,
   value,
-} from "../../../mod.ts"
+} from "../../../mod.ts";
 
-import { type Context } from "../main.ts"
+import { type Context } from "../main.ts";
 
-const dev = Deno.args[0] === "dev"
+const dev = Deno.args[0] === "dev";
 
 export function loader(
   { context: { getAuthenticated }, request }: LoaderArgs<Context>,
 ) {
-  const url = new URL(request.url)
+  const url = new URL(request.url);
 
   const redirectSearchParams = new URLSearchParams({
     redirect_to: url.pathname + url.search,
-  }).toString()
+  }).toString();
 
   return {
     redirectSearchParams,
     authenticated: !!getAuthenticated(),
-  }
+  };
 }
 
 function Header({ loaderData }: Partial<RouteProps<typeof loader>>) {
@@ -59,7 +59,7 @@ function Header({ loaderData }: Partial<RouteProps<typeof loader>>) {
         </nav>
       </header>
     </div>
-  `
+  `;
 }
 
 export default function Layout(
@@ -69,16 +69,16 @@ export default function Layout(
     ${Header(props)}
 
     <slot></slot>
-  `
+  `;
 }
 
 export function Boundary(props: BoundaryProps<typeof loader>) {
-  let message = "Unknown error"
-  let stack = ""
+  let message = "Unknown error";
+  let stack = "";
   if (dev && props.error && props.error instanceof Error) {
-    message = props.error.message
-    stack = props.error.stack || ""
-    console.log({ stack: props.error.stack })
+    message = props.error.message;
+    stack = props.error.stack || "";
+    console.log({ stack: props.error.stack });
   }
 
   return html`
@@ -93,5 +93,5 @@ export function Boundary(props: BoundaryProps<typeof loader>) {
     `
   }
     </main>
-  `
+  `;
 }

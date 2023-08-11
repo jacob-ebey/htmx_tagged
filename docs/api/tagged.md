@@ -10,9 +10,9 @@ description: APIs for working with HTML.
 Create an HTML template literal.
 
 ```typescript
-import { html } from "https://deno.land/x/htmx_tagged/html.ts"
+import { html } from "https://deno.land/x/htmx_tagged/html.ts";
 
-return html`<h1>Hello, World!</h1>`
+return html`<h1>Hello, World!</h1>`;
 ```
 
 ### `attr()`
@@ -20,9 +20,9 @@ return html`<h1>Hello, World!</h1>`
 Create and escape an HTML attribute.
 
 ```typescript
-import { attr, html } from "https://deno.land/x/htmx_tagged/html.ts"
+import { attr, html } from "https://deno.land/x/htmx_tagged/html.ts";
 
-return html`<h1 class=${attr("title")}>Hello, World!</h1>`
+return html`<h1 class=${attr("title")}>Hello, World!</h1>`;
 ```
 
 ### `value()`
@@ -30,7 +30,7 @@ return html`<h1 class=${attr("title")}>Hello, World!</h1>`
 Create and escape an HTML value.
 
 ```typescript
-import { html, value } from "https://deno.land/x/htmx_tagged/html.ts"
+import { html, value } from "https://deno.land/x/htmx_tagged/html.ts";
 
-return html`<h1>${value("Hello, World!")}</h1>`
+return html`<h1>${value("Hello, World!")}</h1>`;
 ```

@@ -11,15 +11,18 @@ This is our entry point for the server. It contains route definitions and starts
 the HTTP server.
 
 ```typescript
-import { type RouteConfig, serve } from "https://deno.land/x/htmx_tagged/mod.ts"
-import { getAssetResponse } from "https://deno.land/x/htmx_tagged/assets.ts"
+import {
+  type RouteConfig,
+  serve,
+} from "https://deno.land/x/htmx_tagged/mod.ts";
+import { getAssetResponse } from "https://deno.land/x/htmx_tagged/assets.ts";
 
-import * as documentLayout from "./routes/_document.ts"
-import * as globalLayout from "./routes/_layout.ts"
-import * as notFoundPage from "./routes/_404.ts"
-import * as homePage from "./routes/home.ts"
+import * as documentLayout from "./routes/_document.ts";
+import * as globalLayout from "./routes/_layout.ts";
+import * as notFoundPage from "./routes/_404.ts";
+import * as homePage from "./routes/home.ts";
 
-const dev = Deno.args[0] === "dev"
+const dev = Deno.args[0] === "dev";
 
 export interface Context {}
 
@@ -46,16 +49,16 @@ const routes: RouteConfig<Context>[] = [
       },
     ],
   },
-]
+];
 
 await serve(routes, {
   dev,
   getAssetResponse,
   middleware({ next }) {
-    const context: Context = {}
-    return next(context)
+    const context: Context = {};
+    return next(context);
   },
-})
+});
 ```
 
 ### Create a `routes/_document.ts` module
@@ -69,21 +72,21 @@ import {
   html,
   type LoaderArgs,
   type RouteProps,
-} from "https://deno.land/x/htmx_tagged/mod.ts"
-import { script, stylesheet } from "https://deno.land/x/htmx_tagged/assets.ts"
+} from "https://deno.land/x/htmx_tagged/mod.ts";
+import { script, stylesheet } from "https://deno.land/x/htmx_tagged/assets.ts";
 
-import type { Context } from "../main.ts"
+import type { Context } from "../main.ts";
 
 export async function loader({}: LoaderArgs<Context>) {
   const [entrySrc, stylesHref] = await Promise.all([
     script("/entry.ts").then((res) => res.href),
     stylesheet("/styles.css").then((res) => res.href),
-  ])
+  ]);
 
   return {
     entrySrc,
     stylesHref,
-  }
+  };
 }
 
 export default function Document(
@@ -111,7 +114,7 @@ export default function Document(
         <slot></slot>
       </body>
     </html>
-  `
+  `;
 }
 ```
 
@@ -125,13 +128,13 @@ an SPA like experience in combination with the `hx-boost`, and `hx-sync`
 attributes on the `<body>`.
 
 ```typescript
-import * as htmx from "npm:htmx.org@1.9.4"
-import Alpine from "npm:alpinejs@3.12.3"
+import * as htmx from "npm:htmx.org@1.9.4";
+import Alpine from "npm:alpinejs@3.12.3";
 
 declare global {
   interface Window {
-    htmx: typeof htmx
-    Alpine: typeof Alpine
+    htmx: typeof htmx;
+    Alpine: typeof Alpine;
   }
 }
 
@@ -139,17 +142,17 @@ if (!window.htmx) {
   // deno-lint-ignore no-explicit-any
   htmx.on("htmx:beforeSwap", (event: any) => {
     if (event.detail.xhr.status !== 500) {
-      event.detail.shouldSwap = true
+      event.detail.shouldSwap = true;
     }
-  })
+  });
 
-  window.htmx = htmx
-  import("npm:htmx.org@1.9.4/dist/ext/loading-states.js")
+  window.htmx = htmx;
+  import("npm:htmx.org@1.9.4/dist/ext/loading-states.js");
 }
 
 if (!window.Alpine) {
-  window.Alpine = Alpine
-  Alpine.start()
+  window.Alpine = Alpine;
+  Alpine.start();
 }
 ```
 
@@ -173,9 +176,9 @@ import {
   type BoundaryProps,
   html,
   value,
-} from "https://deno.land/x/htmx_tagged/mod.ts"
+} from "https://deno.land/x/htmx_tagged/mod.ts";
 
-const dev = Deno.args[0] === "dev"
+const dev = Deno.args[0] === "dev";
 
 function Header() {
   return html`
@@ -186,7 +189,7 @@ function Header() {
         <li><a href="/not-found">Not Found</a></li>
       </ul>
     </header>
-  `
+  `;
 }
 
 export default function Layout() {
@@ -194,17 +197,17 @@ export default function Layout() {
     ${Header()}
 
     <slot></slot>
-  `
+  `;
 }
 
 export function Boundary(props: BoundaryProps) {
-  console.error(props.error)
+  console.error(props.error);
 
-  let message = "Unknown error"
-  let stack = ""
+  let message = "Unknown error";
+  let stack = "";
   if (dev && props.error && props.error instanceof Error) {
-    message = props.error.message
-    stack = props.error.stack || ""
+    message = props.error.message;
+    stack = props.error.stack || "";
   }
 
   return html`
@@ -219,7 +222,7 @@ export function Boundary(props: BoundaryProps) {
     `
   }
     </main>
-  `
+  `;
 }
 ```
 
@@ -228,7 +231,7 @@ Now let's create our home page.
 ### Create a `routes/home.ts` module
 
 ```typescript
-import { html } from "https://deno.land/x/htmx_tagged/mod.ts"
+import { html } from "https://deno.land/x/htmx_tagged/mod.ts";
 
 export default function Home() {
   return html`
@@ -236,7 +239,7 @@ export default function Home() {
       <h2>Home</h2>
       <p>This is the home page.</p>
     </main>
-  `
+  `;
 }
 ```
 
@@ -245,12 +248,12 @@ And finally our 404 page.
 ### Create a `routes/_404.ts` module
 
 ```typescript
-import { html, type LoaderArgs } from "https://deno.land/x/htmx_tagged/mod.ts"
+import { html, type LoaderArgs } from "https://deno.land/x/htmx_tagged/mod.ts";
 
-import type { Context } from "../main.ts"
+import type { Context } from "../main.ts";
 
 export function loader({ status }: LoaderArgs<Context>) {
-  status(404)
+  status(404);
 }
 
 export default function NotFound() {
@@ -259,7 +262,7 @@ export default function NotFound() {
       <h2>Not Found</h2>
       <p>This page could not be found.</p>
     </main>
-  `
+  `;
 }
 ```
 

@@ -1,7 +1,7 @@
-import { html, type LoaderArgs } from "../../../mod.ts"
+import { html, type LoaderArgs } from "../../../mod.ts";
 
 export function loader({ status }: LoaderArgs<unknown>) {
-  status(404)
+  status(404);
 }
 
 export default function _404() {
@@ -10,5 +10,5 @@ export default function _404() {
       <h1>404</h1>
       <p>Page not found.</p>
     </main>
-  `
+  `;
 }
