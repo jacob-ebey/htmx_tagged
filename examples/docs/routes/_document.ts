@@ -22,7 +22,7 @@ export default function Document(
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>My App</title>
+        <title>HTMX Tagged</title>
 
         <meta name="htmx-config" content='{"globalViewTransitions":true}' />
 
