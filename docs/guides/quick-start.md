@@ -39,6 +39,7 @@ const routes: RouteConfig<Context>[] = [
           },
           {
             id: "404",
+            path: "*",
             module: notFoundPage,
           },
         ],
@@ -171,6 +172,7 @@ export a Boundary to catch errors.
 import {
   type BoundaryProps,
   html,
+  value,
 } from "https://deno.land/x/htmx_tagged/mod.ts"
 
 const dev = Deno.args[0] === "dev"
@@ -243,7 +245,7 @@ And finally our 404 page.
 ### Create a `routes/_404.ts` module
 
 ```typescript
-import { html } from "https://deno.land/x/htmx_tagged/mod.ts"
+import { html, type LoaderArgs } from "https://deno.land/x/htmx_tagged/mod.ts"
 
 import type { Context } from "../main.ts"
 
