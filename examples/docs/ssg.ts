@@ -38,7 +38,7 @@ try {
       "-E",
       "-nH",
       "-P",
-      "ssg",
+      Deno.args[0] || "ssg",
       "http://localhost:3000/",
     ],
   })

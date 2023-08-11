@@ -12,6 +12,7 @@ const staticHandler = createStatic("public", {
   setHeaders(headers) {
     headers.set("cache-control", "public, max-age=600, must-revalidate")
   },
+  extensions: ["html"],
 })
 
 function getContentType(pathname: string) {
