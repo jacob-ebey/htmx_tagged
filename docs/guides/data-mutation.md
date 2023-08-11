@@ -29,7 +29,9 @@ export async function action({ request, status }: ActionArgs<Context>) {
 
   if (!name) {
     status(400)
-    return "Please enter a name."
+    return {
+      message: "Please enter a name.",
+    }
   }
 
   return {
